@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Muzz Galaxy 3D Ultimate</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      font-family: 'Arial Black', sans-serif;
+    }
+
+    #connectWallet {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #00ff9d;
+      color: black;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    #hud {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      color: #00ff9d;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 20px;
+      border: 2px solid #00ff9d;
+      border-radius: 10px;
+      text-align: right;
+    }
+
+    #controls {
+      position: fixed;
+      bottom: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      z-index: 10;
+    }
+
+    .btn {
+      width: 60px;
+      height: 60px;
+      font-size: 28px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,255,157,0.2);
+      color: white;
+    }
+
+    @media (min-width: 768px) {
+      #controls { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <button id="connectWallet">🔗 Conectar Wallet</button>
+  <div id="hud">
+    Puntos: <span id="score">0</span><br />
+    Nivel: <span id="level">1</span><br />
+    Vidas: <span id="lives">❤️❤️❤️</span>
+  </div>
+  <div id="controls">
+    <button class="btn" id="leftBtn">⬅️</button>
+    <button class="btn" id="fireBtn">🔥</button>
+    <button class="btn" id="rightBtn">➡️</button>
+  </div>
+
+  <!-- Three.js Core -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/examples/js/loaders/GLTFLoader.js"></script>
+
+  <script>
+    let scene, camera, renderer, player, bullets = [], enemies = [], score = 0, level = 1, lives = 3, keys = {};
+    let enemySpeed = 0.03, enemyDir = 1;
+    let walletConnected = false;
+
+    const loader = new THREE.GLTFLoader();
+
+    const bgMusic = new Audio("https://files.catbox.moe/ywlyy6.mp3");
+    bgMusic.loop = true;
+    bgMusic.volume = 0.4;
+
+    function connectWallet() {
+      if (typeof window.ethereum !== 'undefined') {
+        ethereum.request({ method: 'eth_requestAccounts' }).then(accounts => {
+          walletConnected = true;
+          document.getElementById("connectWallet").style.display = "none";
+          bgMusic.play();
+          init();
+        }).catch(err => alert("Error al conectar: " + err.message));
+      } else {
+        alert("Wallet no detectada. Instala MetaMask o usa navegador Web3.");
+      }
+    }
+
+    function init() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 0, 20);
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(0, 10, 20);
+      scene.add(light);
+      scene.add(new THREE.AmbientLight(0x404040));
+
+      const spaceTexture = new THREE.TextureLoader().load("https://img.freepik.com/fotos-premium/fondos-pantalla-espacio-que-te-haran-querer-saber_916191-12698.jpg");
+      scene.background = spaceTexture;
+
+      loader.load('https://models.readyplayer.me/64f61556da5e51a2a64fbd05.glb', gltf => {
+        player = gltf.scene;
+        player.scale.set(2, 2, 2);
+        player.position.set(0, -8, 0);
+        scene.add(player);
+      });
+
+      createEnemies();
+      animate();
+    }
+
+    function createEnemies() {
+      enemies = [];
+      for (let r = 0; r < 2; r++) {
+        for (let c = 0; c < 5; c++) {
+          loader.load('https://cdn.glitch.global/161d42e4-c204-4a0a-bdcf-5b1b41c1f9c2/eth-enemy.glb?v=1', gltf => {
+            let enemy = gltf.scene.clone();
+            enemy.scale.set(1.5, 1.5, 1.5);
+            enemy.position.set(-10 + c * 5, 4 + r * 3, 0);
+            enemies.push(enemy);
+            scene.add(enemy);
+          });
+        }
+      }
+    }
+
+    function shoot() {
+      const geo = new THREE.CylinderGeometry(0.1, 0.1, 1.5, 8);
+      const mat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+      const bullet = new THREE.Mesh(geo, mat);
+      bullet.rotation.x = Math.PI / 2;
+      bullet.position.set(player.position.x, player.position.y + 1, 0);
+      bullets.push(bullet);
+      scene.add(bullet);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (!player) return;
+
+      // Movement
+      if (keys['ArrowLeft']) player.position.x -= 0.2;
+      if (keys['ArrowRight']) player.position.x += 0.2;
+      player.position.x = THREE.MathUtils.clamp(player.position.x, -11, 11);
+
+      bullets.forEach((b, i) => {
+        b.position.y += 0.6;
+        if (b.position.y > 20) {
+          scene.remove(b);
+          bullets.splice(i, 1);
+        }
+      });
+
+      let shift = false;
+      enemies.forEach(e => {
+        e.position.x += enemySpeed * enemyDir;
+        if (e.position.x > 12 || e.position.x < -12) shift = true;
+      });
+      if (shift) {
+        enemyDir *= -1;
+        enemies.forEach(e => e.position.y -= 0.5);
+      }
+
+      bullets.forEach((b, bi) => {
+        enemies.forEach((e, ei) => {
+          if (e && b.position.distanceTo(e.position) < 1.5) {
+            scene.remove(e);
+            scene.remove(b);
+            enemies.splice(ei, 1);
+            bullets.splice(bi, 1);
+            score += 100;
+            document.getElementById("score").textContent = score;
+            if (score % 500 === 0) {
+              level++;
+              document.getElementById("level").textContent = level;
+              createEnemies();
+            }
+          }
+        });
+      });
+
+      enemies.forEach(e => {
+        if (e.position.y <= player.position.y + 1) {
+          lives--;
+          document.getElementById("lives").textContent = "❤️".repeat(lives);
+          if (lives <= 0) {
+            alert("Game Over! Puntos: " + score);
+            window.location.reload();
+          }
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    // Events
+    document.addEventListener('keydown', e => {
+      keys[e.key] = true;
+      if (e.key === ' ') shoot();
+    });
+    document.addEventListener('keyup', e => keys[e.key] = false);
+
+    document.getElementById('connectWallet').onclick = connectWallet;
+    document.getElementById('leftBtn').ontouchstart = () => keys['ArrowLeft'] = true;
+    document.getElementById('leftBtn').ontouchend = () => keys['ArrowLeft'] = false;
+    document.getElementById('rightBtn').ontouchstart = () => keys['ArrowRight'] = true;
+    document.getElementById('rightBtn').ontouchend = () => keys['ArrowRight'] = false;
+    document.getElementById('fireBtn').ontouchstart = () => shoot();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>you 
