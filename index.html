@@ -1,20 +1,1756 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MuzzGalaxy - Retro Defender</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PacBlock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-magenta: #ff00ff;
+            --neon-yellow: #ffff00;
+            --neon-green: #00ff80;
+            --dark-bg: #0a0a0a;
+            /* Variables para el tema Game Boy */
+            --gb-body-color: #8B956D; /* Color inicial: Original */
+            --gb-shadow-color: #6B7552; /* Sombra inicial */
+            --gb-border-color: #4a4f3a; /* Borde y detalles */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            background: var(--dark-bg);
+            font-family: 'Rajdhani', sans-serif;
+            color: #fff;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        /* === MENÚ PRINCIPAL CYBERPUNK === */
+        #starfield {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, var(--neon-cyan), transparent),
+                radial-gradient(2px 2px at 40px 70px, var(--neon-magenta), transparent),
+                radial-gradient(1px 1px at 90px 40px, var(--neon-yellow), transparent),
+                linear-gradient(45deg, transparent 30%, rgba(0,255,255,0.02) 50%, transparent 70%);
+            background-size: 200px 100px, 200px 100px, 200px 100px, 100px 100px;
+            animation: cyberpunkStars 15s linear infinite;
+            z-index: -3;
+        }
+        
+        @keyframes cyberpunkStars {
+            0% { background-position: 0 0, 0 0, 0 0, 0 0; }
+            100% { background-position: -200px 0, -200px 0, -200px 0, -100px 0; }
+        }
+        
+        #grid-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridPulse 3s ease-in-out infinite alternate;
+            z-index: -2;
+        }
+        
+        @keyframes gridPulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.1; }
+        }
+        
+        #mainMenu {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(10,10,10,0.9) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .game-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2.5rem, 12vw, 5rem);
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px var(--neon-cyan);
+            margin-bottom: 1rem;
+            animation: titleGlow 2s ease-in-out infinite alternate;
+            letter-spacing: 4px;
+        }
+        
+        @keyframes titleGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.3); }
+        }
+        
+        .game-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            margin-bottom: 3rem;
+            text-align: center;
+            opacity: 0.8;
+            letter-spacing: 2px;
+        }
+        
+        #accessBtn {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            padding: 1rem 3rem;
+            min-width: 250px;
+            margin-bottom: 2.5rem;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta));
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 
+                0 0 20px var(--neon-cyan),
+                0 0 40px var(--neon-magenta);
+            transition: all 0.3s ease;
+        }
+        
+        #accessBtn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 30px var(--neon-cyan);
+        }
+        
+        .menu-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            width: 100%;
+            max-width: 300px;
+            position: relative;
+        }
+        
+        .menu-button {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 0.8rem 2rem;
+            width: 100%;
+            background: linear-gradient(45deg, rgba(0,255,255,0.2), rgba(255,0,255,0.2));
+            color: var(--neon-cyan);
+            border: 2px solid rgba(0,255,255,0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(0,255,255,0.2);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+        
+        .menu-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 25px rgba(0,255,255,0.5);
+        }
+        
+        .version-info {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 0.8rem;
+            color: rgba(0,255,255,0.6);
+            text-shadow: 0 0 5px rgba(0,255,255,0.3);
+            z-index: 1000;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 5000;
+        }
+        
+        .loading-content {
+            text-align: center;
+            color: var(--neon-cyan);
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0,255,255,0.3);
+            border-top-color: var(--neon-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+        
+        /* === GAME BOY ESTILO === */
+        .game-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height para móviles */
+            display: none;
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+            /* Usa las nuevas variables CSS */
+            background: linear-gradient(145deg, var(--gb-body-color), var(--gb-shadow-color));
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.2);
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .power-led {
+            position: absolute;
+            top: 1vh;
+            right: 5vw;
+            width: 10px;
+            height: 10px;
+            background: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #ff0000, inset 0 0 5px rgba(255,255,255,0.5);
+            animation: pulse 2s infinite;
+            z-index: 1000;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 15px #ff0000, inset 0 0 5px rgba(255,255,255,0.5); }
+            50% { opacity: 0.6; box-shadow: 0 0 8px #ff0000, inset 0 0 3px rgba(255,255,255,0.3); }
+        }
+        
+        .speaker-grilles {
+            position: absolute;
+            top: 1.5vh;
+            left: 5vw;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 1000;
+        }
+        
+        .speaker-line {
+            width: 35px;
+            height: 2px;
+            /* Usa la nueva variable CSS */
+            background: var(--gb-border-color);
+            border-radius: 1px;
+            box-shadow: inset 0 1px 1px rgba(0,0,0,0.3);
+        }
+        
+        .screen-area {
+            width: 90vw;
+            max-width: 500px;
+            height: 55vh;
+            height: 55dvh;
+            max-height: 600px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            border: 6px solid #2a2a2a;
+            box-shadow: 
+                inset 0 0 0 3px #0a0a0a,
+                inset 0 0 30px rgba(0,0,0,0.9),
+                0 6px 20px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .hud {
+            position: relative;
+            width: 90vw;
+            max-width: 500px;
+            display: flex;
+            gap: 10px;
+            /* Usa la nueva variable CSS */
+            color: var(--gb-border-color);
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 100;
+            font-family: 'Courier New', monospace;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 10px;
+            margin: 8px 0;
+            flex-shrink: 0;
+        }
+        
+        .score, .lives {
+            /* Usa las nuevas variables CSS */
+            background: linear-gradient(145deg, var(--gb-body-color), var(--gb-shadow-color));
+            padding: 6px 12px;
+            border: 2px solid var(--gb-border-color);
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            white-space: nowrap;
+            box-shadow: 
+                0 2px 4px rgba(0,0,0,0.3),
+                inset 0 1px 2px rgba(255,255,255,0.1);
+        }
+        
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            background: #9BBC0F;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        
+        /* Controles de la Consola */
+        .controls-area {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12vw;
+            flex-shrink: 0;
+        }
+        
+        .dpad-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: linear-gradient(145deg, #5a5f4a, #4a4f3a);
+            padding: 10px;
+            border-radius: 25px;
+            box-shadow: 
+                inset 0 3px 6px rgba(0,0,0,0.4),
+                0 3px 6px rgba(0,0,0,0.2);
+        }
+        
+        .dpad-row {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .dpad-btn {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(145deg, #7B8562, #6B7552);
+            border: none;
+            border-radius: 8px;
+            color: #1a1a1a;
+            font-weight: bold;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 4px 0 #3a3f2a,
+                0 6px 10px rgba(0,0,0,0.4),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            touch-action: manipulation;
+            user-select: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.05s ease;
+        }
+        
+        .dpad-btn:active {
+            background: linear-gradient(145deg, #5a5f4a, #4a4f3a);
+            box-shadow: 
+                0 2px 0 #3a3f2a,
+                inset 0 3px 6px rgba(0,0,0,0.6);
+            transform: translateY(4px);
+        }
+        
+        .dpad-spacer {
+            width: 70px;
+            height: 70px;
+            background: transparent;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .action-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #A45555, #944B4B);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            font-size: 9px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+            box-shadow: 
+                0 4px 0 #4a2525,
+                0 6px 10px rgba(0,0,0,0.4),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            touch-action: manipulation;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.05s ease;
+            text-align: center;
+            line-height: 1.1; /* Para el texto largo "MENÚ PRINCIPAL" */
+            padding: 5px;
+        }
+        
+        .action-btn:active {
+            background: linear-gradient(145deg, #7B3535, #6B2525);
+            box-shadow: 
+                0 2px 0 #4a2525,
+                inset 0 3px 6px rgba(0,0,0,0.6);
+            transform: translateY(4px);
+        }
+
+        /* --- NUEVOS ESTILOS PARA EL BOTÓN DE COLOR Y EL SUBMENÚ EN JUEGO --- */
+        .center-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding-top: 15px; 
+            position: relative;
+        }
+
+        /* Estilo para el botón rectangular "COLOR" */
+        .select-btn {
+            width: 60px; 
+            height: 20px;
+            background: #3A3F2A; /* Darker than body */
+            border: 2px solid #5A5F4A;
+            border-radius: 4px;
+            color: #9BBC0F;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: all 0.1s;
+            flex-shrink: 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .select-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+        }
+
+        /* Overlay/Submenú de selección de color en juego */
+        #colorSelectorGameOverlay {
+            position: absolute;
+            bottom: 25px; /* Above the button */
+            background: rgba(0,0,0,0.8);
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid var(--gb-border-color);
+            box-shadow: 0 0 15px rgba(0,0,0,0.8);
+            display: none; /* Initially hidden */
+            z-index: 1000;
+            flex-direction: row;
+            gap: 5px;
+        }
+
+        /* Estilo para las bolitas de color en el submenú */
+        .color-option {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .color-option.selected {
+            border-color: #ffffff;
+            box-shadow: 0 0 8px #fff;
+            transform: scale(1.1);
+        }
+
+        .color-option[data-color-name="original"] { background: #8B956D; }
+        .color-option[data-color-name="berry"] { background: #A54B52; }
+        .color-option[data-color-name="grape"] { background: #6F4B95; }
+        .color-option[data-color-name="kiwi"] { background: #4BA56E; }
+        .color-option[data-color-name="teal"] { background: #4B8E9A; }
+        /* --- FIN NUEVOS ESTILOS --- */
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.95);
+            color: #9BBC0F;
+            padding: 25px;
+            border: 2px solid #9BBC0F;
+            text-align: center;
+            z-index: 200;
+            display: none;
+            font-family: 'Courier New', monospace;
+            max-width: 90%;
+            box-shadow: 0 0 20px rgba(155, 188, 15, 0.5);
+        }
+        
+        .game-over h2 {
+            color: #9BBC0F;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-shadow: 0 0 10px #9BBC0F;
+        }
+        
+        .game-over p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(145deg, #6B7552, #4a4f3a);
+            color: #9BBC0F;
+            border: 2px solid #9BBC0F;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        .restart-btn:active {
+            background: linear-gradient(145deg, #4a4f3a, #6B7552);
+            transform: scale(0.95);
+        }
+        
+        /* Media Queries (Mantener ajustes para la nueva estructura) */
+        @media (max-width: 768px) {
+            .screen-area {
+                width: 92vw;
+                height: 52vh;
+                height: 52dvh;
+            }
+            
+            .hud {
+                width: 92vw;
+                font-size: 13px;
+                gap: 8px;
+            }
+            
+            .score, .lives {
+                padding: 5px 12px;
+                font-size: 12px;
+            }
+            
+            .dpad-btn {
+                width: 65px;
+                height: 65px;
+                font-size: 22px;
+            }
+            
+            .dpad-spacer {
+                width: 65px;
+                height: 65px;
+            }
+            
+            .action-btn {
+                width: 65px;
+                height: 65px;
+                font-size: 8px;
+            }
+            
+            .controls-area {
+                padding: 0 10vw;
+            }
+            
+            .dpad-container {
+                padding: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .screen-area {
+                width: 94vw;
+                height: 50vh;
+                height: 50dvh;
+            }
+            
+            .hud {
+                width: 94vw;
+                font-size: 12px;
+                gap: 6px;
+            }
+            
+            .score, .lives {
+                padding: 4px 10px;
+            }
+            
+            .dpad-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+            
+            .dpad-spacer {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .action-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 8px;
+            }
+            
+            .controls-area {
+                padding: 0 8vw;
+            }
+
+            .select-btn {
+                width: 55px; 
+                height: 18px;
+            }
+            
+            #colorSelectorGameOverlay {
+                bottom: 22px;
+                padding: 5px;
+                gap: 3px;
+            }
+            .color-option {
+                width: 22px;
+                height: 22px;
+            }
+        }
+        
+        @media (max-height: 700px) and (orientation: portrait) {
+            .screen-area {
+                height: 48vh;
+                height: 48dvh;
+            }
+            
+            .dpad-btn {
+                width: 58px;
+                height: 58px;
+                font-size: 19px;
+            }
+            
+            .dpad-spacer {
+                width: 58px;
+                height: 58px;
+            }
+            
+            .action-btn {
+                width: 58px;
+                height: 58px;
+            }
+            .select-btn {
+                width: 50px;
+                height: 16px;
+                font-size: 9px;
+            }
+        }
+        
+        @media (orientation: landscape) {
+            .game-container {
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                gap: 3vw;
+                padding: 2vh 2vw;
+            }
+            
+            .screen-area {
+                width: 50vw;
+                max-width: 600px;
+                height: 85vh;
+                height: 85dvh;
+                max-height: none;
+            }
+            
+            .hud {
+                width: auto;
+                flex-direction: column;
+                gap: 8px;
+                margin: 0;
+                position: absolute;
+                right: 5vw;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            
+            .score, .lives {
+                min-width: 140px;
+            }
+            
+            .controls-area {
+                width: auto;
+                flex-direction: column;
+                justify-content: center;
+                padding: 0;
+                gap: 25px;
+            }
+            
+            .dpad-btn {
+                width: 65px;
+                height: 65px;
+                font-size: 22px;
+            }
+            
+            .dpad-spacer {
+                width: 65px;
+                height: 65px;
+            }
+            
+            .action-btn {
+                width: 65px;
+                height: 65px;
+                font-size: 8px;
+            }
+            
+            .dpad-container {
+                padding: 8px;
+            }
+            
+            .select-btn {
+                width: 60px;
+                height: 20px;
+            }
+
+            .center-controls {
+                padding: 0;
+                gap: 15px;
+            }
+            
+            .gameboy-details {
+                position: absolute;
+                bottom: 2vh;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .power-led {
+                top: 2vh;
+                right: 8vw;
+            }
+            
+            .speaker-grilles {
+                top: 2.5vh;
+                left: 8vw;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="intro">
-    <h1>MUZZGALAXY</h1>
-    <p>En el núcleo del universo digital, los Aetherions luchan por sobrevivir...</p>
-    <button onclick="startGame()">¡Defender la galaxia!</button>
-  </div>
+    <div id="starfield"></div>
+    <div id="grid-overlay"></div>
+    
+    <div id="mainMenu">
+        <div class="game-title">PacBlock</div>
+        <div class="game-subtitle">Power by: MuzzGalaxy</div>
+        
+        <button id="accessBtn">START GAME</button>
+        
+        <div class="menu-options">
+            <button class="menu-button" id="highScoresBtn">POINT HISTORY</button>
+            <button class="menu-button" id="instructionsBtn">INSTRUCTION</button>
+            <button class="menu-button" id="creditsBtn">CRÉDIT</button>
+        </div>
+    </div>
+    
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">LOADING LEVEL...</div>
+        </div>
+    </div>
+    
+    <div class="game-container" id="gameContainer">
+        <div class="power-led"></div>
+        
+        <div class="speaker-grilles">
+            <div class="speaker-line"></div>
+            <div class="speaker-line"></div>
+            <div class="speaker-line"></div>
+            <div class="speaker-line"></div>
+            <div class="speaker-line"></div>
+        </div>
+        
+        <div class="screen-area">
+            <canvas id="gameCanvas" width="320" height="288"></canvas>
+            
+            <div class="game-over" id="gameOverScreen">
+                <h2>GAME OVER</h2>
+                <p>FINAL SCORE: <span id="finalScore">000000</span></p>
+                <button class="restart-btn" onclick="restartGame()">RESTART</button>
+                <button class="restart-btn" onclick="backToMenu()" style="margin-left: 10px;">HOME</button>
+            </div>
+        </div>
+        
+        <div class="hud">
+            <div class="score">SCORE: <span id="scoreValue">000000</span></div>
+            <div class="lives">LIVES: <span id="livesValue">03</span></div>
+            <div class="lives">LEVEL: <span id="levelValue">01</span></div>
+        </div>
+        
+        <div class="controls-area">
+            <div class="dpad-container">
+                <div class="dpad-row">
+                    <div class="dpad-spacer"></div>
+                    <div class="dpad-btn" data-direction="up">▲</div>
+                    <div class="dpad-spacer"></div>
+                </div>
+                <div class="dpad-row">
+                    <div class="dpad-btn" data-direction="left">◄</div>
+                    <div class="dpad-spacer"></div>
+                    <div class="dpad-btn" data-direction="right">►</div>
+                </div>
+                <div class="dpad-row">
+                    <div class="dpad-spacer"></div>
+                    <div class="dpad-btn" data-direction="down">▼</div>
+                    <div class="dpad-spacer"></div>
+                </div>
+            </div>
+            
+            <div class="center-controls">
+                <div id="colorSelectorGameOverlay">
+                    <div class="color-option selected" data-color-name="original" data-body-color="#8B956D" data-shadow-color="#6B7552" data-border-color="#4a4f3a" title="Original"></div>
+                    <div class="color-option" data-color-name="berry" data-body-color="#A54B52" data-shadow-color="#843c41" data-border-color="#55272a" title="Berry"></div>
+                    <div class="color-option" data-color-name="grape" data-body-color="#6F4B95" data-shadow-color="#553a72" data-border-color="#362547" title="Grape"></div>
+                    <div class="color-option" data-color-name="kiwi" data-body-color="#4BA56E" data-shadow-color="#3b8457" data-border-color="#265538" title="Kiwi"></div>
+                    <div class="color-option" data-color-name="teal" data-body-color="#4B8E9A" data-shadow-color="#3c717a" data-border-color="#274b50" title="Teal"></div>
+                </div>
+                <div class="select-btn" id="colorBtn">COLOR</div>
+            </div>
+            
+            <div class="action-buttons">
+                <div class="action-btn" onclick="pauseGame()">PAUSE</div>
+                <div class="action-btn" onclick="backToMenu()">HOME</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="version-info">V 1.0</div>
 
-  <canvas id="gameCanvas" width="480" height="640"></canvas>
+    <script>
+        // === SISTEMA DE PUNTUACIONES EN MEMORIA ===
+        class ScoreManager {
+            constructor() {
+                this.scores = [];
+                this.maxScores = 10;
+            }
+            
+            // Obtener todas las puntuaciones
+            getScores() {
+                return this.scores;
+            }
+            
+            // Guardar nueva puntuación
+            saveScore(score, level) {
+                const newScore = {
+                    score: score,
+                    level: level,
+                    date: new Date().toLocaleDateString('es-ES'),
+                    time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+                };
+                
+                this.scores.push(newScore);
+                this.scores.sort((a, b) => b.score - a.score);
+                
+                // Mantener solo las mejores 10
+                this.scores = this.scores.slice(0, this.maxScores);
+                
+                console.log('Puntuación guardada:', newScore);
+                console.log('Total de puntuaciones:', this.scores.length);
+                
+                return this.scores;
+            }
+            
+            // Verificar si es un nuevo récord
+            isHighScore(score) {
+                if (this.scores.length < this.maxScores) return true;
+                return score > this.scores[this.scores.length - 1].score;
+            }
+            
+            // Obtener ranking del jugador
+            getRank(score) {
+                let rank = 1;
+                for (let i = 0; i < this.scores.length; i++) {
+                    if (score > this.scores[i].score) {
+                        return rank;
+                    }
+                    rank++;
+                }
+                return rank;
+            }
+            
+            // Limpiar todas las puntuaciones
+            clearScores() {
+                this.scores = [];
+                console.log('Historial borrado');
+            }
+            
+            // Formatear tabla de puntuaciones
+            getFormattedScores() {
+                if (this.scores.length === 0) {
+                    return '═══════════════════════════════\n' +
+                           '   NO HAY PUNTUACIONES AÚN\n' +
+                           '═══════════════════════════════\n\n' +
+                           '¡Juega para establecer tu récord!\n\n' +
+                           'NOTA: Las puntuaciones se guardan\n' +
+                           'solo durante esta sesión.';
+                }
+                
+                let table = '═══════════════════════════════\n';
+                table += '  🏆 TOP 10 PUNTUACIONES 🏆\n';
+                table += '═══════════════════════════════\n\n';
+                
+                this.scores.forEach((entry, index) => {
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                    table += `${medal} ${entry.score.toString().padStart(7, '0')} pts\n`;
+                    table += `   Nivel ${entry.level.toString().padStart(2, '0')} | ${entry.date} ${entry.time}\n\n`;
+                });
+                
+                table += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+                table += 'Las puntuaciones se mantienen\n';
+                table += 'durante esta sesión de juego';
+                
+                return table;
+            }
+        }
+        
+        const scoreManager = new ScoreManager();
+        
+        // === CONTROL DE MENÚ ===
+        const DOM = {
+            mainMenu: document.getElementById('mainMenu'),
+            accessBtn: document.getElementById('accessBtn'),
+            highScoresBtn: document.getElementById('highScoresBtn'),
+            instructionsBtn: document.getElementById('instructionsBtn'),
+            creditsBtn: document.getElementById('creditsBtn'),
+            loadingOverlay: document.getElementById('loadingOverlay'),
+            gameContainer: document.getElementById('gameContainer'),
+            starfield: document.getElementById('starfield'),
+            gridOverlay: document.getElementById('grid-overlay'),
+            // Nuevos elementos para el selector de color en juego
+            colorBtn: document.getElementById('colorBtn'), 
+            colorSelectorGameOverlay: document.getElementById('colorSelectorGameOverlay'),
+            colorOptions: document.querySelectorAll('.color-option')
+        };
+        
+        function showLoading(duration, callback) {
+            DOM.loadingOverlay.style.display = 'flex';
+            setTimeout(() => {
+                DOM.loadingOverlay.style.display = 'none';
+                if (callback) callback();
+            }, duration);
+        }
+        
+        function startGameFromMenu() {
+            console.log('Starting game from menu...');
+            
+            // Intentar activar fullscreen
+            requestFullscreen();
+            
+            DOM.mainMenu.style.display = 'none';
+            DOM.starfield.style.display = 'none';
+            DOM.gridOverlay.style.display = 'none';
+            DOM.gameContainer.style.display = 'flex';
+            
+            // Crear el juego después de mostrar el contenedor
+            setTimeout(() => {
+                if (!game) {
+                    console.log('Creating new game instance...');
+                    game = new PacTetrisGame();
+                } else {
+                    console.log('Restarting existing game...');
+                    game.restart();
+                }
+            }, 100);
+        }
+        
+        function requestFullscreen() {
+            const elem = document.documentElement;
+            
+            try {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(err => {
+                        console.log('Fullscreen request failed:', err);
+                    });
+                } else if (elem.webkitRequestFullscreen) { // Safari
+                    elem.webkitRequestFullscreen();
+                } else if (elem.mozRequestFullScreen) { // Firefox
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) { // IE/Edge
+                    elem.msRequestFullscreen();
+                }
+                console.log('Fullscreen activated');
+            } catch (err) {
+                console.log('Fullscreen not supported:', err);
+            }
+        }
+        
+        function exitFullscreen() {
+            try {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            } catch (err) {
+                console.log('Exit fullscreen error:', err);
+            }
+        }
+        
+        function backToMenu() {
+            // Salir de fullscreen al volver al menú
+            exitFullscreen();
+            
+            DOM.gameContainer.style.display = 'none';
+            DOM.starfield.style.display = 'block';
+            DOM.gridOverlay.style.display = 'block';
+            DOM.mainMenu.style.display = 'flex';
+            
+            // Ocultar el submenú de color si está visible
+            DOM.colorSelectorGameOverlay.style.display = 'none';
+            
+            if (game) {
+                game.paused = true;
+            }
+        }
+        
+        // Función para cambiar el color de la consola
+        function changeConsoleColor(bodyColor, shadowColor, borderColor, selectedOption) {
+            const root = document.documentElement;
+            root.style.setProperty('--gb-body-color', bodyColor);
+            root.style.setProperty('--gb-shadow-color', shadowColor);
+            root.style.setProperty('--gb-border-color', borderColor);
+            console.log(`Console color changed to Body: ${bodyColor}`);
 
-  <script src="game.js"></script>
+            // Actualizar la selección visual
+            DOM.colorOptions.forEach(opt => opt.classList.remove('selected'));
+            selectedOption.classList.add('selected');
+        }
+        
+        // Event Listeners del Menú Principal
+        DOM.accessBtn.addEventListener('click', () => {
+            console.log('Access button clicked!');
+            showLoading(2000, startGameFromMenu);
+        });
+        
+        DOM.highScoresBtn.addEventListener('click', () => {
+            showLoading(800, () => {
+                const scoresTable = scoreManager.getFormattedScores();
+                const hasScores = scoreManager.getScores().length > 0;
+                
+                let message = scoresTable;
+                
+                if (hasScores) {
+                    message += '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+                    message += '¿Deseas borrar el historial?\n';
+                    message += 'Presiona OK para borrar';
+                    
+                    if (confirm(message)) {
+                        scoreManager.clearScores();
+                        alert('✅ Historial borrado exitosamente');
+                    }
+                } else {
+                    alert(message);
+                }
+            });
+        });
+        
+        DOM.instructionsBtn.addEventListener('click', () => {
+            showLoading(1000, () => {
+                alert('🎮 INSTRUCCIONES:\n\n' +
+                      '• Come todas las piezas de Tetris\n' +
+                      '• Evita los fantasmas enemigos\n' +
+                      '• Completa 100 niveles únicos\n' +
+                      '• Usa los controles direccionales\n\n' +
+                      '💡 TIPS:\n' +
+                      '• Los enemigos son más rápidos en niveles altos\n' +
+                      '• Cada pieza vale más puntos según el nivel\n' +
+                      '• El juego entra en fullscreen automáticamente\n\n' +
+                      '🎯 CONTROLES:\n' +
+                      '• D-Pad: Mover a Pac-Man\n' +
+                      '• PAUSE: Pausar el juego\n' +
+                      '• MENÚ PRINCIPAL: Volver al menú (sale de fullscreen)\n' +
+                      '• COLOR: Cambiar el color de la consola\n' +
+                      '• Teclado: Flechas (Desktop)\n\n' +
+                      '¡Good luck!');
+            });
+        });
+        
+        DOM.creditsBtn.addEventListener('click', () => {
+            showLoading(1000, () => {
+                alert('🎮 CRÉDITOS:\n\n💻 Desarrollador: BorincanoPR\n🎨 Diseño: Retro Game Boy Style\n🎵 Inspirado en clásicos arcade\n\n© 2025 MuzzGalaxy');
+            });
+        });
+
+        // Evento para mostrar/ocultar el selector de color en el juego
+        DOM.colorBtn.addEventListener('click', () => {
+            const isVisible = DOM.colorSelectorGameOverlay.style.display === 'flex';
+            DOM.colorSelectorGameOverlay.style.display = isVisible ? 'none' : 'flex';
+        });
+        
+        // Evento para seleccionar un color
+        DOM.colorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Aplicar el nuevo color a las variables CSS
+                const bodyColor = option.getAttribute('data-body-color');
+                const shadowColor = option.getAttribute('data-shadow-color');
+                const borderColor = option.getAttribute('data-border-color');
+                changeConsoleColor(bodyColor, shadowColor, borderColor, option);
+                
+                // Ocultar el selector después de la selección
+                DOM.colorSelectorGameOverlay.style.display = 'none';
+            });
+        });
+        
+        // === JUEGO PAC-TETRIS ===
+        class PacTetrisGame {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                
+                this.canvas.width = 320;
+                this.canvas.height = 288;
+                
+                this.gridSize = 16;
+                this.cols = Math.floor(this.canvas.width / this.gridSize);
+                this.rows = Math.floor(this.canvas.height / this.gridSize);
+                
+                this.score = 0;
+                this.lives = 3;
+                this.level = 1;
+                this.gameRunning = true;
+                this.paused = false;
+                this.difficultySettings = this.calculateDifficultySettings(1);
+                
+                this.player = {
+                    x: 1,
+                    y: 1,
+                    direction: 'right',
+                    mouthOpen: true,
+                    animationCounter: 0,
+                    moveCounter: 0
+                };
+                
+                this.tetrisPieces = [];
+                this.enemies = [];
+                
+                this.setupControls();
+                this.initGame();
+                this.gameLoop();
+            }
+            
+            calculateDifficultySettings(level) {
+                return {
+                    pieces: Math.min(15 + Math.floor(level / 3), 30),
+                    enemies: Math.min(2 + Math.floor(level / 8), 7),
+                    enemySpeed: Math.max(20 - Math.floor(level / 5), 3),
+                    chaseChance: Math.min(0.05 + level * 0.008, 0.4),
+                    playerSpeed: level < 20 ? 8 : (level < 50 ? 7 : 6),
+                    pointsPerPiece: 100 + (level * 15),
+                    levelBonus: level * 750 + Math.floor(level / 10) * 1000
+                };
+            }
+            
+            setupControls() {
+                // Usar setTimeout para asegurar que los elementos estén en el DOM
+                setTimeout(() => {
+                    const dpadBtns = document.querySelectorAll('.dpad-btn');
+                    console.log('D-Pad buttons found:', dpadBtns.length);
+                    
+                    dpadBtns.forEach(btn => {
+                        // Touchstart para móviles
+                        btn.addEventListener('touchstart', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const direction = btn.getAttribute('data-direction');
+                            console.log('Touch direction:', direction);
+                            this.changeDirection(direction);
+                        }, { passive: false });
+                        
+                        // Click para desktop
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const direction = btn.getAttribute('data-direction');
+                            console.log('Click direction:', direction);
+                            this.changeDirection(direction);
+                        });
+                    });
+                }, 100);
+                
+                // Controles de teclado
+                this.keyHandler = (e) => {
+                    switch(e.key) {
+                        case 'ArrowUp': 
+                            e.preventDefault();
+                            this.changeDirection('up'); 
+                            break;
+                        case 'ArrowDown': 
+                            e.preventDefault();
+                            this.changeDirection('down'); 
+                            break;
+                        case 'ArrowLeft': 
+                            e.preventDefault();
+                            this.changeDirection('left'); 
+                            break;
+                        case 'ArrowRight': 
+                            e.preventDefault();
+                            this.changeDirection('right'); 
+                            break;
+                        case ' ': 
+                            e.preventDefault();
+                            pauseGame(); 
+                            break;
+                        case 'Escape': 
+                            e.preventDefault();
+                            backToMenu(); 
+                            break;
+                    }
+                };
+                
+                document.addEventListener('keydown', this.keyHandler);
+            }
+            
+            changeDirection(direction) {
+                if (!this.gameRunning || this.paused) {
+                    console.log('Game not running or paused');
+                    return;
+                }
+                console.log('Changing direction to:', direction);
+                this.player.direction = direction;
+            }
+            
+            initGame() {
+                this.generateTetrisPieces();
+                this.generateEnemies();
+            }
+            
+            generateTetrisPieces() {
+                const tetrisShapes = [
+                    [[1,1,1,1]],
+                    [[1,1],[1,1]],
+                    [[0,1,0],[1,1,1]],
+                    [[0,1,1],[1,1,0]],
+                    [[1,1,0],[0,1,1]],
+                    [[1,0,0],[1,1,1]],
+                    [[0,0,1],[1,1,1]]
+                ];
+                
+                const settings = this.difficultySettings;
+                const levelSeed = this.level * 1337;
+                
+                for (let i = 0; i < settings.pieces; i++) {
+                    const seedValue = (levelSeed + i * 97) % 10000;
+                    const shape = tetrisShapes[seedValue % tetrisShapes.length];
+                    
+                    const x = 2 + ((seedValue * 13) % (this.cols - 6));
+                    const y = 2 + ((seedValue * 17) % (this.rows - 6));
+                    
+                    const finalX = (x === 1 && y === 1) ? x + 2 : x;
+                    const finalY = (x === 1 && y === 1) ? y + 1 : y;
+                    
+                    this.tetrisPieces.push({
+                        x: finalX,
+                        y: finalY,
+                        shape: shape,
+                        blinkCounter: (seedValue * 7) % 60,
+                        points: settings.pointsPerPiece
+                    });
+                }
+            }
+            
+            generateEnemies() {
+                const levelSeed = this.level * 2017;
+                const settings = this.difficultySettings;
+                
+                for (let i = 0; i < settings.enemies; i++) {
+                    const seedValue = (levelSeed + i * 127) % 10000;
+                    const x = (seedValue * 11) % this.cols;
+                    const y = (seedValue * 19) % this.rows;
+                    
+                    const finalX = Math.abs(x - 1) < 4 ? (x + 5) % this.cols : x;
+                    const finalY = Math.abs(y - 1) < 4 ? (y + 3) % this.rows : y;
+                    
+                    this.enemies.push({
+                        x: finalX,
+                        y: finalY,
+                        direction: ['up', 'down', 'left', 'right'][seedValue % 4],
+                        moveCounter: (seedValue * 3) % 20,
+                        animationPhase: (seedValue * 0.01) % (Math.PI * 2)
+                    });
+                }
+            }
+            
+            update() {
+                if (!this.gameRunning || this.paused) return;
+                
+                this.updatePlayer();
+                this.updateEnemies();
+                this.checkCollisions();
+                this.checkWinCondition();
+                
+                this.tetrisPieces.forEach(piece => piece.blinkCounter++);
+            }
+            
+            updatePlayer() {
+                this.player.moveCounter++;
+                
+                if (this.player.moveCounter >= this.difficultySettings.playerSpeed) {
+                    const directions = {
+                        up: {x: 0, y: -1},
+                        down: {x: 0, y: 1},
+                        left: {x: -1, y: 0},
+                        right: {x: 1, y: 0}
+                    };
+                    
+                    const dir = directions[this.player.direction];
+                    const newX = this.player.x + dir.x;
+                    const newY = this.player.y + dir.y;
+                    
+                    if (newX >= 0 && newX < this.cols && newY >= 0 && newY < this.rows) {
+                        this.player.x = newX;
+                        this.player.y = newY;
+                    }
+                    
+                    this.player.moveCounter = 0;
+                }
+                
+                this.player.animationCounter++;
+                if (this.player.animationCounter > 15) {
+                    this.player.mouthOpen = !this.player.mouthOpen;
+                    this.player.animationCounter = 0;
+                }
+            }
+            
+            updateEnemies() {
+                const enemySpeed = this.difficultySettings.enemySpeed;
+                
+                this.enemies.forEach(enemy => {
+                    enemy.moveCounter++;
+                    enemy.animationPhase += 0.05 + (this.level * 0.001);
+                    
+                    if (enemy.moveCounter > enemySpeed) {
+                        const directions = {
+                            up: {x: 0, y: -1},
+                            down: {x: 0, y: 1},
+                            left: {x: -1, y: 0},
+                            right: {x: 1, y: 0}
+                        };
+                        
+                        let shouldChase = Math.random() < this.difficultySettings.chaseChance;
+                        
+                        if (shouldChase) {
+                            const dx = this.player.x - enemy.x;
+                            const dy = this.player.y - enemy.y;
+                            
+                            if (Math.abs(dx) > Math.abs(dy)) {
+                                enemy.direction = dx > 0 ? 'right' : 'left';
+                            } else {
+                                enemy.direction = dy > 0 ? 'down' : 'up';
+                            }
+                        } else if (Math.random() < 0.3) {
+                            const dirs = ['up', 'down', 'left', 'right'];
+                            enemy.direction = dirs[Math.floor(Math.random() * dirs.length)];
+                        }
+                        
+                        const dir = directions[enemy.direction];
+                        const newX = enemy.x + dir.x;
+                        const newY = enemy.y + dir.y;
+                        
+                        if (newX >= 0 && newX < this.cols && newY >= 0 && newY < this.rows) {
+                            enemy.x = newX;
+                            enemy.y = newY;
+                        } else {
+                            const dirs = ['up', 'down', 'left', 'right'];
+                            enemy.direction = dirs[Math.floor(Math.random() * dirs.length)];
+                        }
+                        
+                        enemy.moveCounter = 0;
+                    }
+                });
+            }
+            
+            checkCollisions() {
+                this.tetrisPieces = this.tetrisPieces.filter(piece => {
+                    if (Math.abs(piece.x - this.player.x) <= 1 && Math.abs(piece.y - this.player.y) <= 1) {
+                        this.score += piece.points;
+                        this.updateScore();
+                        return false;
+                    }
+                    return true;
+                });
+                
+                this.enemies.forEach(enemy => {
+                    if (enemy.x === this.player.x && enemy.y === this.player.y) {
+                        this.lives--;
+                        this.updateLives();
+                        
+                        if (this.lives <= 0) {
+                            this.gameOver();
+                        } else {
+                            this.player.x = 1;
+                            this.player.y = 1;
+                        }
+                    }
+                });
+            }
+            
+            checkWinCondition() {
+                if (this.tetrisPieces.length === 0) {
+                    const levelBonus = this.difficultySettings.levelBonus;
+                    this.score += levelBonus;
+                    this.updateScore();
+                    
+                    this.level++;
+                    this.updateLevel();
+                    
+                    if (this.level > 100) {
+                        this.gameWin();
+                        return;
+                    }
+                    
+                    this.difficultySettings = this.calculateDifficultySettings(this.level);
+                    this.enemies = [];
+                    this.generateTetrisPieces();
+                    this.generateEnemies();
+                    
+                    this.player.x = 1;
+                    this.player.y = 1;
+                    this.player.direction = 'right';
+                    
+                    this.showLevelMessage();
+                }
+            }
+            
+            draw() {
+                this.ctx.fillStyle = '#9BBC0F';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                if (this.paused) {
+                    this.drawPauseScreen();
+                    return;
+                }
+                
+                this.drawTetrisPieces();
+                this.drawEnemies();
+                this.drawPlayer();
+                
+                if (this.levelMessage && this.levelMessage.timer > 0) {
+                    this.drawLevelMessage();
+                    this.levelMessage.timer--;
+                    if (this.levelMessage.timer <= 0) {
+                        this.levelMessage = null;
+                    }
+                }
+            }
+            
+            drawPauseScreen() {
+                this.ctx.fillStyle = '#0f380f';
+                this.ctx.font = '16px Courier New';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('PAUSED', this.canvas.width/2, this.canvas.height/2);
+            }
+            
+            drawLevelMessage() {
+                this.ctx.fillStyle = '#0f380f';
+                this.ctx.font = 'bold 20px Courier New';
+                this.ctx.textAlign = 'center';
+                
+                if (Math.floor(this.levelMessage.timer / 10) % 2 === 0) {
+                    this.ctx.fillText(this.levelMessage.text, this.canvas.width/2, this.canvas.height/2);
+                }
+                
+                if (this.level > 1) {
+                    this.ctx.font = '12px Courier New';
+                    this.ctx.fillText(`BONUS: ${this.difficultySettings.levelBonus}`, this.canvas.width/2, this.canvas.height/2 + 25);
+                }
+            }
+            
+            drawTetrisPieces() {
+                this.tetrisPieces.forEach(piece => {
+                    const x = piece.x * this.gridSize;
+                    const y = piece.y * this.gridSize;
+                    
+                    const visible = Math.floor(piece.blinkCounter / 30) % 2 === 0;
+                    this.ctx.fillStyle = visible ? '#0f380f' : '#8bac0f';
+                    
+                    piece.shape.forEach((row, rowIndex) => {
+                        row.forEach((cell, colIndex) => {
+                            if (cell) {
+                                const blockX = x + colIndex * this.gridSize;
+                                const blockY = y + rowIndex * this.gridSize;
+                                this.ctx.fillRect(blockX, blockY, this.gridSize - 1, this.gridSize - 1);
+                            }
+                        });
+                    });
+                });
+            }
+            
+            drawPlayer() {
+                const centerX = this.player.x * this.gridSize + this.gridSize / 2;
+                const centerY = this.player.y * this.gridSize + this.gridSize / 2;
+                const radius = this.gridSize / 2 - 1;
+                
+                this.ctx.fillStyle = '#0f380f';
+                this.ctx.beginPath();
+                
+                if (this.player.mouthOpen) {
+                    const startAngle = this.getDirectionAngle() + 0.5;
+                    const endAngle = this.getDirectionAngle() - 0.5;
+                    this.ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                    this.ctx.lineTo(centerX, centerY);
+                } else {
+                    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                }
+                
+                this.ctx.fill();
+            }
+            
+            getDirectionAngle() {
+                const angles = {
+                    right: 0,
+                    down: Math.PI / 2,
+                    left: Math.PI,
+                    up: -Math.PI / 2
+                };
+                return angles[this.player.direction] || 0;
+            }
+            
+            drawEnemies() {
+                this.enemies.forEach(enemy => {
+                    const centerX = enemy.x * this.gridSize + this.gridSize / 2;
+                    const centerY = enemy.y * this.gridSize + this.gridSize / 2;
+                    const radius = this.gridSize / 2 - 1;
+                    
+                    this.ctx.fillStyle = '#0f380f';
+                    this.ctx.beginPath();
+                    this.ctx.arc(centerX, centerY - radius/3, radius, Math.PI, 0);
+                    this.ctx.rect(centerX - radius, centerY - radius/3, radius * 2, radius * 1.2);
+                    
+                    const waveHeight = Math.sin(enemy.animationPhase) * 2;
+                    this.ctx.rect(centerX - radius, centerY + radius/2, radius/2, waveHeight);
+                    this.ctx.rect(centerX, centerY + radius/2, radius/2, -waveHeight);
+                    this.ctx.rect(centerX + radius/2, centerY + radius/2, radius/2, waveHeight);
+                    
+                    this.ctx.fill();
+                });
+            }
+            
+            updateScore() {
+                document.getElementById('scoreValue').textContent = this.score.toString().padStart(6, '0');
+            }
+            
+            updateLives() {
+                document.getElementById('livesValue').textContent = this.lives.toString().padStart(2, '0');
+            }
+            
+            updateLevel() {
+                document.getElementById('levelValue').textContent = Math.min(this.level, 100).toString().padStart(2, '0');
+            }
+            
+            showLevelMessage() {
+                this.levelMessage = {
+                    text: `LEVEL ${this.level}`,
+                    timer: 120
+                };
+            }
+            
+            gameWin() {
+                this.gameRunning = false;
+                
+                // Guardar puntuación
+                const isNewRecord = scoreManager.isHighScore(this.score);
+                scoreManager.saveScore(this.score, this.level - 1);
+                const rank = scoreManager.getRank(this.score);
+                
+                document.getElementById('finalScore').textContent = this.score.toString().padStart(6, '0');
+                document.querySelector('.game-over h2').textContent = 'YOU WIN!';
+                
+                let message = '¡FELICIDADES!<br>¡COMPLETASTE LOS 100 NIVELES!<br><br>';
+                message += `PUNTUACIÓN FINAL: ${this.score.toString().padStart(6, '0')}<br>`;
+                
+                if (isNewRecord) {
+                    message += `<br>🎉 ¡NUEVO RÉCORD! 🎉<br>`;
+                    message += `Posición: #${rank}`;
+                }
+                
+                document.querySelector('.game-over p').innerHTML = message;
+                document.getElementById('gameOverScreen').style.display = 'block';
+            }
+            
+            gameOver() {
+                this.gameRunning = false;
+                
+                // Guardar puntuación
+                const isNewRecord = scoreManager.isHighScore(this.score);
+                scoreManager.saveScore(this.score, this.level);
+                const rank = scoreManager.getRank(this.score);
+                
+                document.getElementById('finalScore').textContent = this.score.toString().padStart(6, '0');
+                
+                let message = `FINAL SCORE: ${this.score.toString().padStart(6, '0')}<br>`;
+                message += `NIVEL ALCANZADO: ${this.level}<br>`;
+                
+                if (isNewRecord) {
+                    message += `<br>⭐ ¡NUEVO RÉCORD! ⭐<br>`;
+                    message += `Posición: #${rank}`;
+                }
+                
+                document.querySelector('.game-over p').innerHTML = message;
+                document.getElementById('gameOverScreen').style.display = 'block';
+            }
+            
+            restart() {
+                this.score = 0;
+                this.lives = 3;
+                this.level = 1;
+                this.gameRunning = true;
+                this.paused = false;
+                this.levelMessage = null;
+                this.difficultySettings = this.calculateDifficultySettings(1);
+                this.player = {
+                    x: 1,
+                    y: 1,
+                    direction: 'right',
+                    mouthOpen: true,
+                    animationCounter: 0,
+                    moveCounter: 0
+                };
+                this.tetrisPieces = [];
+                this.enemies = [];
+                
+                this.updateScore();
+                this.updateLives();
+                this.updateLevel();
+                this.initGame();
+                
+                document.querySelector('.game-over h2').textContent = 'GAME OVER';
+                document.querySelector('.game-over p').innerHTML = 'FINAL SCORE: <span id="finalScore">000000</span>';
+                document.getElementById('gameOverScreen').style.display = 'none';
+            }
+            
+            togglePause() {
+                if (this.gameRunning) {
+                    this.paused = !this.paused;
+                }
+            }
+            
+            gameLoop() {
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.gameLoop());
+            }
+        }
+        
+        let game;
+        
+        function restartGame() {
+            if (game) {
+                game.restart();
+            }
+        }
+        
+        function pauseGame() {
+            if (game) {
+                game.togglePause();
+            }
+        }
+        
+        // Detectar cambios en fullscreen
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+        
+        function handleFullscreenChange() {
+            const isFullscreen = !!(document.fullscreenElement || 
+                                   document.webkitFullscreenElement || 
+                                   document.mozFullScreenElement ||
+                                   document.msFullscreenElement);
+            
+            console.log('Fullscreen status:', isFullscreen ? 'ON' : 'OFF');
+            
+            // Si el usuario sale manualmente de fullscreen mientras juega, vuelve al menú principal
+            if (!isFullscreen && DOM.gameContainer.style.display === 'flex') {
+                console.log('Fullscreen desactivado durante el juego, volviendo al menú principal.');
+                backToMenu();
+            }
+        }
+        
+        // Prevenir zoom en móviles
+        document.addEventListener('touchstart', function (event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // Mensaje de bienvenida
+        console.log('🎮 PacBlock Loaded! Press Start game to start');
+        console.log('📱 Fullscreen will activate automatically when you start playing');
+    </script>
 </body>
 </html>
