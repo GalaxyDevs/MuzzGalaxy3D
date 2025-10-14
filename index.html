@@ -2,39 +2,1745 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>PacBlock</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUZZGALAXY </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
-            --neon-cyan: #00ffff;
-            --neon-magenta: #ff00ff;
-            --neon-yellow: #ffff00;
-            --neon-green: #00ff80;
-            --dark-bg: #0a0a0a;
-            /* Variables para el tema Game Boy */
-            --gb-body-color: #8B956D; /* Color inicial: Original */
-            --gb-shadow-color: #6B7552; /* Sombra inicial */
-            --gb-border-color: #4a4f3a; /* Borde y detalles */
+            --neon-pink: #ff2a6d;
+            --neon-blue: #05d9e8;
+            --neon-purple: #d300c5;
+            --neon-green: #00ff9d;
+            --neon-yellow: #ffe600;
+            --metal-dark: #0a0a12;
+            --metal-medium: #1a1a2e;
+            --metal-light: #2d2d44;
+            --cable-color: #ff2a6d;
+            --grid-color: rgba(5, 217, 232, 0.1);
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Rajdhani', 'Orbitron', 'Arial Narrow', sans-serif;
         }
         
-        html, body {
+        body {
+            background-color: var(--metal-dark);
+            color: white;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(210, 0, 197, 0.05) 0%, transparent 25%),
+                radial-gradient(circle at 80% 70%, rgba(5, 217, 232, 0.05) 0%, transparent 25%);
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Scrollbar personalizada */
+        body::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        body::-webkit-scrollbar-track {
+            background: var(--metal-medium);
+        }
+        
+        body::-webkit-scrollbar-thumb {
+            background: var(--neon-pink);
+            border-radius: 5px;
+        }
+        
+        body::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-purple);
+            box-shadow: 0 0 5px var(--neon-pink);
+        }
+        
+        /* Efectos de fondo */
+        .metal-background {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden;
+            background: 
+                linear-gradient(135deg, var(--metal-medium) 25%, transparent 25%) -50px 0,
+                linear-gradient(225deg, var(--metal-medium) 25%, transparent 25%) -50px 0,
+                linear-gradient(315deg, var(--metal-light) 25%, transparent 25%),
+                linear-gradient(45deg, var(--metal-light) 25%, transparent 25%);
+            background-size: 100px 100px;
+            background-color: var(--metal-dark);
+            opacity: 0.7;
+            z-index: -2;
+        }
+        
+        .cable {
+            position: absolute;
+            background: var(--cable-color);
+            box-shadow: 0 0 10px var(--cable-color), 0 0 20px var(--cable-color);
+            z-index: -1;
+        }
+        
+        .cable-1 {
+            top: 20%;
+            left: -50px;
+            width: 300px;
+            height: 4px;
+            transform: rotate(45deg);
+        }
+        
+        .cable-2 {
+            top: 70%;
+            right: -50px;
+            width: 250px;
+            height: 4px;
+            transform: rotate(-30deg);
+        }
+        
+        .cable-3 {
+            bottom: 10%;
+            left: 30%;
+            width: 200px;
+            height: 4px;
+            transform: rotate(15deg);
+        }
+        
+        .network-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        /* Pantalla de login */
+        #login-screen {
             position: fixed;
-            background: var(--dark-bg);
-            font-family: 'Rajdhani', sans-serif;
-            color: #fff;
-            user-select: none;
-            -webkit-user-select: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .login-container {
+            text-align: center;
+            padding: 60px 40px;
+            background: rgba(10, 10, 18, 0.85);
+            border-radius: 15px;
+            border: 1px solid var(--neon-blue);
+            box-shadow: 
+                0 0 30px var(--neon-pink),
+                0 0 60px var(--neon-purple),
+                inset 0 0 20px var(--neon-blue);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+            transform: perspective(1000px) rotateX(5deg);
+            backdrop-filter: blur(5px);
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent 45%,
+                rgba(5, 217, 232, 0.15) 50%,
+                transparent 55%
+            );
+            transform: rotate(30deg);
+            animation: shine 6s infinite linear;
+        }
+        
+        .neon-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            background: linear-gradient(
+                    rgba(5, 217, 232, 0.8),
+                    rgba(255, 42, 109, 0.8)
+                )
+                border-box;
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) padding-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: -1;
+            filter: blur(2px);
+        }
+        
+        .logo-large {
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
+            font-weight: 900;
+            background: linear-gradient(
+                90deg, 
+                var(--neon-green),
+                var(--neon-blue),
+                var(--neon-pink),
+                var(--neon-yellow)
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-bottom: 40px;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.3),
+                0 0 20px var(--neon-purple);
+            position: relative;
+            z-index: 2;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .login-btn {
+            padding: 15px 50px;
+            background: linear-gradient(
+                45deg, 
+                var(--neon-pink),
+                var(--neon-purple)
+            );
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 
+                0 0 15px var(--neon-pink),
+                0 0 30px var(--neon-purple),
+                inset 0 0 10px white;
+            position: relative;
+            z-index: 2;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 0 25px var(--neon-pink),
+                0 0 50px var(--neon-purple),
+                inset 0 0 15px white;
+        }
+        
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent 45%,
+                rgba(255, 255, 255, 0.2) 50%,
+                transparent 55%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        .terminal-text {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+            font-family: monospace;
+            font-size: 1rem;
+            margin-top: 30px;
+            opacity: 0.7;
+        }
+        
+        /* PÁGINA PRINCIPAL - MEJORAS EN EL HEADER */
+        #main-content {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* HEADER OPTIMIZADO PARA DESKTOP Y MOBILE */
+        header {
+            padding: 12px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(10, 10, 18, 0.9);
+            border-bottom: 1px solid var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255, 0, 105, 0.3);
+            backdrop-filter: blur(5px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        /* LOGO OPTIMIZADO */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+        
+        .logo-icon i {
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .logo {
+            font-size: clamp(1.4rem, 5vw, 1.8rem);
+            font-weight: 800;
+            background: linear-gradient(
+                90deg, 
+                var(--neon-yellow),
+                var(--neon-pink)
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+        }
+        
+        /* MENÚ DE NAVEGACIÓN RESPONSIVE */
+        .nav-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--neon-blue);
+            cursor: pointer;
+        }
+        
+        nav {
+            display: flex;
+            gap: 25px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        nav a:hover {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+        
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--neon-green);
+            transition: width 0.3s ease;
+        }
+        
+        nav a:hover::after {
+            width: 100%;
+        }
+        
+        /* HERO SECTION */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 5%;
+            position: relative;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            margin-bottom: 30px;
+            background: linear-gradient(
+                90deg, 
+                var(--neon-yellow),
+                var(--neon-green),
+                var(--neon-blue)
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+            line-height: 1.2;
+            text-shadow: 0 0 15px rgba(5, 217, 232, 0.5);
+        }
+        
+        .hero p {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            max-width: 800px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* TARJETAS CON BORDES NEÓN Y EFECTO 3D */
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            padding: 5% 10%;
+        }
+        
+        .card {
+            background: rgba(10, 10, 18, 0.85);
+            border: 1px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 
+                0 0 20px var(--neon-blue),
+                inset 0 0 15px rgba(5, 217, 232, 0.2);
+            position: relative;
+            overflow: hidden;
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .card:hover {
+            transform: perspective(1000px) rotateX(5deg) translateY(-10px);
+            box-shadow: 0 0 30px var(--neon-purple), 0 0 50px var(--neon-pink);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent 45%,
+                rgba(5, 217, 232, 0.15) 50%,
+                transparent 55%
+            );
+            transform: rotate(30deg);
+            animation: shine 8s infinite linear;
+        }
+        
+        .card h2 {
+            color: var(--neon-blue);
+            font-size: 2rem;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--neon-pink);
+            padding-bottom: 10px;
+            text-shadow: 0 0 10px rgba(5, 217, 232, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .card ul {
+            list-style-type: none;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .card li {
+            margin-bottom: 15px;
+            position: relative;
+            padding-left: 30px;
+            font-size: 1.2rem;
+        }
+        
+        .card li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--neon-green);
+            font-weight: bold;
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+        
+        /* BOTÓN COMPRAR TOKEN */
+        .buy-token-btn {
+            padding: 15px 45px;
+            background: linear-gradient(
+                45deg, 
+                var(--neon-pink),
+                var(--neon-purple)
+            );
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 30px 0;
+            box-shadow: 
+                0 0 15px var(--neon-pink),
+                0 0 30px var(--neon-purple);
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+        }
+        
+        .buy-token-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 0 25px var(--neon-pink),
+                0 0 50px var(--neon-purple);
+        }
+        
+        .buy-token-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent 45%,
+                rgba(255, 255, 255, 0.2) 50%,
+                transparent 55%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px;
+            background: rgba(10, 10, 18, 0.9);
+            border-top: 1px solid var(--neon-purple);
+            box-shadow: 0 -10px 30px rgba(210, 0, 197, 0.1);
+            backdrop-filter: blur(5px);
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .social-links a {
+            color: white;
+            font-size: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            color: var(--neon-green);
+            transform: translateY(-5px);
+            text-shadow: 0 0 15px var(--neon-green);
+        }
+        
+        /* ANIMACIONES */
+        @keyframes shine {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
+        }
+        
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                opacity: 1;
+                text-shadow: 
+                    0 0 5px #fff,
+                    0 0 10px #fff,
+                    0 0 15px var(--neon-blue),
+                    0 0 20px var(--neon-purple);
+            }
+            20%, 24%, 55% {  
+                opacity: 0.8;
+                text-shadow: none;
+            }
+        }
+        
+        /* RESPONSIVE - MENÚ */
+        @media (max-width: 900px) {
+            .nav-toggle {
+                display: block;
+            }
+            
+            nav {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(10, 10, 18, 0.95);
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                gap: 15px;
+                transform: translateY(-150%);
+                transition: transform 0.4s ease;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+                z-index: 99;
+            }
+            
+            nav.active {
+                transform: translateY(0);
+            }
+            
+            nav a {
+                width: 90%;
+                text-align: center;
+                padding: 12px;
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .logo-large {
+                font-size: 2.5rem;
+                letter-spacing: 4px;
+            }
+            
+            .login-btn {
+                padding: 12px 40px;
+                font-size: 1.3rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .hero p {
+                font-size: 1.2rem;
+            }
+            
+            .card {
+                padding: 25px;
+            }
+            
+            .card h2 {
+                font-size: 1.8rem;
+            }
+            
+            .card li {
+                font-size: 1.1rem;
+            }
+            
+            .logo-container {
+                gap: 10px;
+            }
+            
+            .logo {
+                max-width: 180px;
+                letter-spacing: 2px;
+            }
+            
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo {
+                max-width: 150px;
+                font-size: 1.3rem;
+                letter-spacing: 1px;
+            }
+            
+            .logo-icon {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .logo-icon i {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="metal-background"></div>
+    <div class="cable cable-1"></div>
+    <div class="cable cable-2"></div>
+    <div class="cable cable-3"></div>
+    <div class="network-grid"></div>
+    
+    <audio id="backgroundAudio" src="https://github.com/GalaxyDevs/MuzzGalaxy3D/raw/refs/heads/main/Back%20To%20The%2080s%20%20Marvel83....mp3" preload="auto" loop></audio>
+
+    <div id="login-screen">
+        <div class="login-container">
+            <div class="neon-border"></div>
+            <div class="logo-large">MUZZ
+            GALAXY</div>
+            <button class="login-btn">CONNECT</button>
+            <div class="terminal-text">> SYSTEM INITIALIZED > READY FOR BATTLER</div>
+        </div>
+    </div>
+    
+    <div id="main-content">
+        <header>
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <div class="logo">MUZZGALAXY</div>
+            </div>
+            
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <nav id="mainNav">
+                <a href="#"><i class="fas fa-home"></i> Home</a>
+                <a href="#"><i class="fas fa-coins"></i> Token</a>
+                <a href="#"><i class="fas fa-route"></i> Roadmap</a>
+                <a href="#"><i class="fas fa-gamepad"></i> Game</a>
+                <a href="#"><i class="fas fa-users"></i> Account</a>
+            </nav>
+        </header>
+        
+        <section class="hero">
+            <h1> The Rift in the Digital Veil </h1>
+            <p>
+​Out there, the cycle is known: empty promises, well-worn paths. But here, in the depths of GalaxyLab, where code merges with memory, there are no limits.
+​We are the True Holders. Those who remember the click of the joystick and the neon glow of a golden era. Those echoes, those pure emotions, are not lost. We have captured them, refined them, and are injecting them into the soul of the next digital frontier.
+​We do not stop. There is no Stop.
+​Every line of code we write is a bridge connecting yesterday's thrill with tomorrow's potential. We are building a Galaxy where nostalgia becomes an asset, and every moment of play is an opportunity for acquisition in the crypto universe.
+​MuzzGalaxy is more than a project. It is the promise of an infinite ecosystem of possibilities and fun, where the reward is as tangible as the memory itself.
+​We leave the old behind. We revive the best. We build the future.
+​WELCOME TO MUZZGALAXY. Your Journey Starts Now.
+</p>
+            
+            <button class="buy-token-btn" id="buyTokenBtn">GAME</button>
+        </section>
+        
+        <div class="cards-container">
+            <div class="card">
+                <h2>Roadmap 2025</h2>
+                <ul>
+                    <li><strong>September :</strong> creating  NFTs Galaxy</li>
+                    <li><strong>September:</strong> game MuzzGalaxy (versión beta)</li>
+                    <li><strong>October:</strong> MuzzGalaxy (versión desktop + apk)</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>Info Token</h2>
+                <ul>
+                    <li><strong>Suministro total:</strong> 1B Galaxy Token</li>
+                    <li><strong>Contrato:</strong> Renunciado</li>
+                    <li><strong>Preventa:</strong> No</li>
+                    <li><strong>Red:</strong> Gsys Network</li>
+                </ul>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2024 MUZZGALAXY. Todos los derechos reservados.</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-telegram"></i></a>
+                <a href="#"><i class="fab fa-discord"></i></a>
+                <a href="#"><i class="fab fa-medium"></i></a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // La URL de compra de token original ha sido reemplazada con la URL del juego
+        const GAME_URL = "https://galaxydevs.github.io/MuzzGalaxy3D/"; 
+        
+        // Elementos del DOM
+        const loginScreen = document.getElementById('login-screen');
+        const mainContent = document.getElementById('main-content');
+        const loginBtn = document.querySelector('.login-btn');
+        const gameBtn = document.getElementById('buyTokenBtn'); 
+        const navToggle = document.getElementById('navToggle');
+        const mainNav = document.getElementById('mainNav');
+        
+        // Referencia al audio
+        const backgroundAudio = document.getElementById('backgroundAudio');
+        
+        // Función para entrar al sitio (solo transición visual)
+        function enterSite() {
+            // Animación de desvanecimiento
+            loginScreen.style.opacity = '0';
+            loginScreen.style.transform = 'scale(1.1)';
+            
+            setTimeout(() => {
+                loginScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+                
+                // Entrar en fullscreen (opcional, se mantiene)
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen()
+                        .catch(err => console.log("Fullscreen error:", err));
+                }
+            }, 800);
+        }
+        
+        // Toggle del menú móvil
+        navToggle.addEventListener('click', () => {
+            mainNav.classList.toggle('active');
+            navToggle.innerHTML = mainNav.classList.contains('active') 
+                ? '<i class="fas fa-times"></i>' 
+                : '<i class="fas fa-bars"></i>';
+        });
+        
+        // Cerrar menú al hacer clic en un enlace
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                mainNav.classList.remove('active');
+                navToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            });
+        });
+        
+        // Evento del botón CONNECTAR (llama a enterSite, que ya NO reproduce audio)
+        loginBtn.addEventListener('click', enterSite);
+        
+        // === MODIFICACIÓN CLAVE AQUÍ: EL BOTÓN 'GAME' INICIA EL AUDIO Y REDIRIGE ===
+        gameBtn.addEventListener('click', () => {
+            // 1. Iniciar la música
+            backgroundAudio.play().catch(error => {
+                console.log("Error al reproducir audio:", error);
+            });
+
+            // 2. Redirigir al juego
+            window.open(GAME_URL, '_blank');
+        });
+        // =========================================================================
+        
+        // Crear partículas neón (función sin cambios)
+        function createParticles() {
+            const colors = ['#ff2a6d', '#05d9e8', '#d300c5', '#00ff9d', '#ffe600'];
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = Math.random() * 3 + 1 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.borderRadius = '50%';
+                particle.style.boxShadow = `0 0 ${Math.random() * 10 + 5}px currentColor`;
+                particle.style.top = Math.random() * 100 + 'vh';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.opacity = '0';
+                particle.style.zIndex = '-1';
+                document.body.appendChild(particle);
+                
+                // Animación de aparición
+                setTimeout(() => {
+                    particle.style.transition = 'opacity 1s ease-in';
+                    particle.style.opacity = '0.7';
+                }, Math.random() * 2000);
+                
+                // Animación de movimiento
+                animateParticle(particle);
+            }
+        }
+        
+        function animateParticle(particle) {
+            let x = parseFloat(particle.style.left);
+            let y = parseFloat(particle.style.top);
+            const xSpeed = (Math.random() - 0.5) * 0.5;
+            const ySpeed = (Math.random() - 0.5) * 0.5;
+            
+            function move() {
+                x += xSpeed;
+                y += ySpeed;
+                
+                if (x < 0 || x > 100) x = Math.random() * 100;
+                if (y < 0 || y > 100) y = Math.random() * 100;
+                
+                particle.style.left = x + 'vw';
+                particle.style.top = y + 'vh';
+                
+                requestAnimationFrame(move);
+            }
+            
+            move();
+        }
+        
+        // Inicializar efectos
+        createParticles();
+    </script>
+</body>
+</html>
+            position: absolute;
+            background: var(--cable-color);
+            box-shadow: 0 0 10px var(--cable-color), 0 0 20px var(--cable-color);
+            z-index: -1;
+        }
+        
+        .cable-1 {
+            top: 20%;
+            left: -50px;
+            width: 300px;
+            height: 4px;
+            transform: rotate(45deg);
+        }
+        
+        .cable-2 {
+            top: 70%;
+            right: -50px;
+            width: 250px;
+            height: 4px;
+            transform: rotate(-30deg);
+        }
+        
+        .cable-3 {
+            bottom: 10%;
+            left: 30%;
+            width: 200px;
+            height: 4px;
+            transform: rotate(15deg);
+        }
+        
+        .network-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        /* Pantalla de login */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .login-container {
+            text-align: center;
+            padding: 60px 40px;
+            background: rgba(10, 10, 18, 0.85);
+            border-radius: 15px;
+            border: 1px solid var(--neon-blue);
+            box-shadow: 
+                0 0 30px var(--neon-pink),
+                0 0 60px var(--neon-purple),
+                inset 0 0 20px var(--neon-blue);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+            transform: perspective(1000px) rotateX(5deg);
+            backdrop-filter: blur(5px);
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent 45%,
+                rgba(5, 217, 232, 0.15) 50%,
+                transparent 55%
+            );
+            transform: rotate(30deg);
+            animation: shine 6s infinite linear;
+        }
+        
+        .neon-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            background: linear-gradient(
+                    rgba(5, 217, 232, 0.8),
+                    rgba(255, 42, 109, 0.8)
+                )
+                border-box;
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) padding-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: -1;
+            filter: blur(2px);
+        }
+        
+        .logo-large {
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
+            font-weight: 900;
+            background: linear-gradient(
+                90deg, 
+                var(--neon-green),
+                var(--neon-blue),
+                var(--neon-pink),
+                var(--neon-yellow)
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-bottom: 40px;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.3),
+                0 0 20px var(--neon-purple);
+            position: relative;
+            z-index: 2;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .login-btn {
+            padding: 15px 50px;
+            background: linear-gradient(
+                45deg, 
+                var(--neon-pink),
+                var(--neon-purple)
+            );
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 
+                0 0 15px var(--neon-pink),
+                0 0 30px var(--neon-purple),
+                inset 0 0 10px white;
+            position: relative;
+            z-index: 2;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 0 25px var(--neon-pink),
+                0 0 50px var(--neon-purple),
+                inset 0 0 15px white;
+        }
+        
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent 45%,
+                rgba(255, 255, 255, 0.2) 50%,
+                transparent 55%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        .terminal-text {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+            font-family: monospace;
+            font-size: 1rem;
+            margin-top: 30px;
+            opacity: 0.7;
+        }
+        
+        /* PÁGINA PRINCIPAL - MEJORAS EN EL HEADER */
+        #main-content {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* HEADER OPTIMIZADO PARA DESKTOP Y MOBILE */
+        header {
+            padding: 12px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(10, 10, 18, 0.9);
+            border-bottom: 1px solid var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255, 0, 105, 0.3);
+            backdrop-filter: blur(5px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        /* LOGO OPTIMIZADO */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+        
+        .logo-icon i {
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .logo {
+            font-size: clamp(1.4rem, 5vw, 1.8rem);
+            font-weight: 800;
+            background: linear-gradient(
+                90deg, 
+                var(--neon-yellow),
+                var(--neon-pink)
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+        }
+        
+        /* MENÚ DE NAVEGACIÓN RESPONSIVE */
+        .nav-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--neon-blue);
+            cursor: pointer;
+        }
+        
+        nav {
+            display: flex;
+            gap: 25px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        nav a:hover {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+        
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--neon-green);
+            transition: width 0.3s ease;
+        }
+        
+        nav a:hover::after {
+            width: 100%;
+        }
+        
+        /* HERO SECTION */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 5%;
+            position: relative;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            margin-bottom: 30px;
+            background: linear-gradient(
+                90deg, 
+                var(--neon-yellow),
+                var(--neon-green),
+                var(--neon-blue)
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+            line-height: 1.2;
+            text-shadow: 0 0 15px rgba(5, 217, 232, 0.5);
+        }
+        
+        .hero p {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            max-width: 800px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* TARJETAS CON BORDES NEÓN Y EFECTO 3D */
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            padding: 5% 10%;
+        }
+        
+        .card {
+            background: rgba(10, 10, 18, 0.85);
+            border: 1px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 
+                0 0 20px var(--neon-blue),
+                inset 0 0 15px rgba(5, 217, 232, 0.2);
+            position: relative;
+            overflow: hidden;
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .card:hover {
+            transform: perspective(1000px) rotateX(5deg) translateY(-10px);
+            box-shadow: 0 0 30px var(--neon-purple), 0 0 50px var(--neon-pink);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent 45%,
+                rgba(5, 217, 232, 0.15) 50%,
+                transparent 55%
+            );
+            transform: rotate(30deg);
+            animation: shine 8s infinite linear;
+        }
+        
+        .card h2 {
+            color: var(--neon-blue);
+            font-size: 2rem;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--neon-pink);
+            padding-bottom: 10px;
+            text-shadow: 0 0 10px rgba(5, 217, 232, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .card ul {
+            list-style-type: none;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .card li {
+            margin-bottom: 15px;
+            position: relative;
+            padding-left: 30px;
+            font-size: 1.2rem;
+        }
+        
+        .card li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--neon-green);
+            font-weight: bold;
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+        
+        /* BOTÓN COMPRAR TOKEN */
+        .buy-token-btn {
+            padding: 15px 45px;
+            background: linear-gradient(
+                45deg, 
+                var(--neon-pink),
+                var(--neon-purple)
+            );
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 30px 0;
+            box-shadow: 
+                0 0 15px var(--neon-pink),
+                0 0 30px var(--neon-purple);
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+        }
+        
+        .buy-token-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 0 25px var(--neon-pink),
+                0 0 50px var(--neon-purple);
+        }
+        
+        .buy-token-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent 45%,
+                rgba(255, 255, 255, 0.2) 50%,
+                transparent 55%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px;
+            background: rgba(10, 10, 18, 0.9);
+            border-top: 1px solid var(--neon-purple);
+            box-shadow: 0 -10px 30px rgba(210, 0, 197, 0.1);
+            backdrop-filter: blur(5px);
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .social-links a {
+            color: white;
+            font-size: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            color: var(--neon-green);
+            transform: translateY(-5px);
+            text-shadow: 0 0 15px var(--neon-green);
+        }
+        
+        /* ANIMACIONES */
+        @keyframes shine {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
+        }
+        
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                opacity: 1;
+                text-shadow: 
+                    0 0 5px #fff,
+                    0 0 10px #fff,
+                    0 0 15px var(--neon-blue),
+                    0 0 20px var(--neon-purple);
+            }
+            20%, 24%, 55% {  
+                opacity: 0.8;
+                text-shadow: none;
+            }
+        }
+        
+        /* RESPONSIVE - MENÚ */
+        @media (max-width: 900px) {
+            .nav-toggle {
+                display: block;
+            }
+            
+            nav {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(10, 10, 18, 0.95);
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                gap: 15px;
+                transform: translateY(-150%);
+                transition: transform 0.4s ease;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+                z-index: 99;
+            }
+            
+            nav.active {
+                transform: translateY(0);
+            }
+            
+            nav a {
+                width: 90%;
+                text-align: center;
+                padding: 12px;
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .logo-large {
+                font-size: 2.5rem;
+                letter-spacing: 4px;
+            }
+            
+            .login-btn {
+                padding: 12px 40px;
+                font-size: 1.3rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .hero p {
+                font-size: 1.2rem;
+            }
+            
+            .card {
+                padding: 25px;
+            }
+            
+            .card h2 {
+                font-size: 1.8rem;
+            }
+            
+            .card li {
+                font-size: 1.1rem;
+            }
+            
+            .logo-container {
+                gap: 10px;
+            }
+            
+            .logo {
+                max-width: 180px;
+                letter-spacing: 2px;
+            }
+            
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo {
+                max-width: 150px;
+                font-size: 1.3rem;
+                letter-spacing: 1px;
+            }
+            
+            .logo-icon {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .logo-icon i {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="metal-background"></div>
+    <div class="cable cable-1"></div>
+    <div class="cable cable-2"></div>
+    <div class="cable cable-3"></div>
+    <div class="network-grid"></div>
+    
+    <audio id="backgroundAudio" src="https://github.com/GalaxyDevs/MuzzGalaxy3D/raw/refs/heads/main/Back%20To%20The%2080s%20%20Marvel83....mp3" preload="auto" loop></audio>
+
+    <div id="login-screen">
+        <div class="login-container">
+            <div class="neon-border"></div>
+            <div class="logo-large">MUZZ
+            GALAXY</div>
+            <button class="login-btn">CONNECT</button>
+            <div class="terminal-text">> SYSTEM INITIALIZED > READY FOR BATTLER</div>
+        </div>
+    </div>
+    
+    <div id="main-content">
+        <header>
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <div class="logo">MUZZGALAXY</div>
+            </div>
+            
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <nav id="mainNav">
+                <a href="#"><i class="fas fa-home"></i> Home</a>
+                <a href="#"><i class="fas fa-coins"></i> Token</a>
+                <a href="#"><i class="fas fa-route"></i> Roadmap</a>
+                <a href="#"><i class="fas fa-gamepad"></i> Game</a>
+                <a href="#"><i class="fas fa-users"></i> Account</a>
+            </nav>
+        </header>
+        
+        <section class="hero">
+            <h1> The Rift in the Digital Veil </h1>
+            <p>
+​Out there, the cycle is known: empty promises, well-worn paths. But here, in the depths of GalaxyLab, where code merges with memory, there are no limits.
+​We are the True Holders. Those who remember the click of the joystick and the neon glow of a golden era. Those echoes, those pure emotions, are not lost. We have captured them, refined them, and are injecting them into the soul of the next digital frontier.
+​We do not stop. There is no Stop.
+​Every line of code we write is a bridge connecting yesterday's thrill with tomorrow's potential. We are building a Galaxy where nostalgia becomes an asset, and every moment of play is an opportunity for acquisition in the crypto universe.
+​MuzzGalaxy is more than a project. It is the promise of an infinite ecosystem of possibilities and fun, where the reward is as tangible as the memory itself.
+​We leave the old behind. We revive the best. We build the future.
+​WELCOME TO MUZZGALAXY. Your Journey Starts Now.
+</p>
+            
+            <button class="buy-token-btn" id="buyTokenBtn">GAME</button>
+        </section>
+        
+        <div class="cards-container">
+            <div class="card">
+                <h2>Roadmap 2025</h2>
+                <ul>
+                    <li><strong>September :</strong> creating  NFTs Galaxy</li>
+                    <li><strong>September:</strong> game MuzzGalaxy (versión beta)</li>
+                    <li><strong>October:</strong> MuzzGalaxy (versión desktop + apk)</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>Info Token</h2>
+                <ul>
+                    <li><strong>Suministro total:</strong> 1B Galaxy Token</li>
+                    <li><strong>Contrato:</strong> Renunciado</li>
+                    <li><strong>Preventa:</strong> No</li>
+                    <li><strong>Red:</strong> Gsys Network</li>
+                </ul>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2024 MUZZGALAXY. Todos los derechos reservados.</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-telegram"></i></a>
+                <a href="#"><i class="fab fa-discord"></i></a>
+                <a href="#"><i class="fab fa-medium"></i></a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // La URL de compra de token original ha sido reemplazada con la URL del juego
+        const GAME_URL = "https://galaxydevs.github.io/MuzzGalaxy3D/"; 
+        
+        // Elementos del DOM
+        const loginScreen = document.getElementById('login-screen');
+        const mainContent = document.getElementById('main-content');
+        const loginBtn = document.querySelector('.login-btn');
+        const gameBtn = document.getElementById('buyTokenBtn'); 
+        const navToggle = document.getElementById('navToggle');
+        const mainNav = document.getElementById('mainNav');
+        
+        // Referencia al audio
+        const backgroundAudio = document.getElementById('backgroundAudio');
+        
+        // Función para entrar al sitio (solo transición visual)
+        function enterSite() {
+            // Animación de desvanecimiento
+            loginScreen.style.opacity = '0';
+            loginScreen.style.transform = 'scale(1.1)';
+            
+            setTimeout(() => {
+                loginScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+                
+                // Entrar en fullscreen (opcional, se mantiene)
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen()
+                        .catch(err => console.log("Fullscreen error:", err));
+                }
+            }, 800);
+        }
+        
+        // Toggle del menú móvil
+        navToggle.addEventListener('click', () => {
+            mainNav.classList.toggle('active');
+            navToggle.innerHTML = mainNav.classList.contains('active') 
+                ? '<i class="fas fa-times"></i>' 
+                : '<i class="fas fa-bars"></i>';
+        });
+        
+        // Cerrar menú al hacer clic en un enlace
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                mainNav.classList.remove('active');
+                navToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            });
+        });
+        
+        // Evento del botón CONNECTAR (llama a enterSite, que ya NO reproduce audio)
+        loginBtn.addEventListener('click', enterSite);
+        
+        // === MODIFICACIÓN CLAVE AQUÍ: EL BOTÓN 'GAME' INICIA EL AUDIO Y REDIRIGE ===
+        gameBtn.addEventListener('click', () => {
+            // 1. Iniciar la música
+            backgroundAudio.play().catch(error => {
+                console.log("Error al reproducir audio:", error);
+            });
+
+            // 2. Redirigir al juego
+            window.open(GAME_URL, '_blank');
+        });
+        // =========================================================================
+        
+        // Crear partículas neón (función sin cambios)
+        function createParticles() {
+            const colors = ['#ff2a6d', '#05d9e8', '#d300c5', '#00ff9d', '#ffe600'];
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = Math.random() * 3 + 1 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.borderRadius = '50%';
+                particle.style.boxShadow = `0 0 ${Math.random() * 10 + 5}px currentColor`;
+                particle.style.top = Math.random() * 100 + 'vh';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.opacity = '0';
+                particle.style.zIndex = '-1';
+                document.body.appendChild(particle);
+                
+                // Animación de aparición
+                setTimeout(() => {
+                    particle.style.transition = 'opacity 1s ease-in';
+                    particle.style.opacity = '0.7';
+                }, Math.random() * 2000);
+                
+                // Animación de movimiento
+                animateParticle(particle);
+            }
+        }
+        
+        function animateParticle(particle) {
+            let x = parseFloat(particle.style.left);
+            let y = parseFloat(particle.style.top);
+            const xSpeed = (Math.random() - 0.5) * 0.5;
+            const ySpeed = (Math.random() - 0.5) * 0.5;
+            
+            function move() {
+                x += xSpeed;
+                y += ySpeed;
+                
+                if (x < 0 || x > 100) x = Math.random() * 100;
+                if (y < 0 || y > 100) y = Math.random() * 100;
+                
+                particle.style.left = x + 'vw';
+                particle.style.top = y + 'vh';
+                
+                requestAnimationFrame(move);
+            }
+            
+            move();
+        }
+        
+        // Inicializar efectos
+        createParticles();
+    </script>
+</body>
+</html>            -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
         }
