@@ -1,1 +1,0 @@
-# MuzzGalaxy3D
